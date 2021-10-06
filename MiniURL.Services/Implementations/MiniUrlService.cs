@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace MiniURL.Services.Implementations
 {
-    public class MiniUrlService : IMiniUrlService
+    public class MiniUrlService : IMiniUrlService, IDisposable, IAsyncDisposable
     {
         private readonly MiniURLContext db;
         public MiniUrlService(MiniURLContext db)
@@ -39,5 +39,15 @@ namespace MiniURL.Services.Implementations
 
         private static Expression<Func<Core.Models.MiniURL, bool>> FilterByReference(string urlRef) => x => x.Reference == urlRef &&
                     (!x.ExpiresOn.HasValue || x.ExpiresOn > DateTimeOffset.UtcNow);
+
+        public void Dispose()
+        {
+            db.Dispose();
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await db.DisposeAsync();
+        }
     }
 }
